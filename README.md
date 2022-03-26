@@ -1,3 +1,7 @@
+# Cloud Computing Mini Project
+
+## Smart Card System with Arduino & Flask
+
 ## Environment in python
-- python3 -m venv proct-env
-- source proct-env/bin/activate
+- python3 -m venv ccl-project
+- source ccl-project/bin/activate
