@@ -25,10 +25,10 @@ device = '/dev/ttyACM0' #this will have to be changed to the serial port you are
 
 # azure database
 # Update connection string information
-host = "<host_name>"
-dbname = "<db_name>"
-user = "<user_name>"
-password = "<passowrd>"
+host = "cclproject.postgres.database.azure.com"
+dbname = "postgres"
+user = "cclproject@cclproject"
+password = "SmartCardSystem123"
 sslmode = "require"
 
 # Construct connection string
@@ -266,7 +266,7 @@ def store_signin():
         finally:
             # closing database connection.
             if (connection):
-                #cursor.close()
+                # cursor.close()
                 connection.close()
                 print("PostgreSQL connection is closed")
                 render_template("store/login/store_login.html")
@@ -284,6 +284,7 @@ def signup():
         emailid = request.form['emailid']
         dateofbirth = request.form['dateofbirth']
         password = request.form['password']
+        mobileno = request.form['mobileno']
         
         # try:
         # connection = psycopg2.connect(user="root",
@@ -298,9 +299,9 @@ def signup():
         cursor = connection.cursor()
 
         sql_insert_query = """INSERT INTO users(
-	username, firstname, lastname, emailid, dateofbirth, password)
-	VALUES (%s, %s, %s, %s, %s, %s);"""
-        record_to_insert = (username, firstname, lastname, emailid, dateofbirth, password)
+	username, firstname, lastname, emailid, mobileno, dateofbirth, password, OTP)
+	VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
+        record_to_insert = (username, firstname, lastname, emailid, mobileno, dateofbirth, password, 'NULL')
         print(record_to_insert)
         cursor.execute(sql_insert_query, record_to_insert)
         connection.commit()
@@ -477,7 +478,7 @@ def make_payment():
         mobileno = "+91"+mobileno
         print("Mobile no=", mobileno)
         message = client.messages.create(  
-                              messaging_service_sid='<message_sid>', 
+                              messaging_service_sid='MGa9dd1f5cab1da2f0ec8b04f16446771f', 
                               body=f'Your OTP is {random_str}',      
                               to=f'{mobileno}' 
                           )
@@ -561,6 +562,64 @@ def verify_otp():
         else:
             return "Wrong OTP"
     return render_template('payment/verify_otp.html')
+
+@app.route('/insert', methods = ['GET','POST'])
+def insert_card():
+    connection = psycopg2.connect(conn_string)
+    print("Connection established")
+
+    cursor = connection.cursor()
+
+    if request.method == "POST":
+        cardno = request.form['cardno']
+        cvv = request.form["cvv"]
+        expirydate = request.form["expirydate"]
+        username = request.form["username"]
+        emailid = request.form["emailid"]
+        balance = request.form["balance"]
+        card_entry = """INSERT INTO cards(cardno, cvv, expiry, username, emailid, balance,
+        active) VALUES(%s, %s, %s, %s, %s, %s, %s);"""
+        card_values = (cardno, cvv, expirydate, username, emailid, balance, True)
+        cursor.execute(card_entry, card_values)
+        print("Added successfully")
+        connection.commit()
+
+    return render_template('store/store_dashboard.html')
+
+@app.route('/add_card')
+def add_card():
+    return render_template('store/cards/add_card.html')
+
+@app.route('/load_balance')
+def load_balance():
+    return render_template('store/cards/load_balance.html')
+
+@app.route('/balance', methods = ['GET','POST'])
+def balance():
+    connection = psycopg2.connect(conn_string)
+    print("Connection established")
+
+    cursor = connection.cursor()
+
+    if request.method == "POST":
+        username = request.form['username']
+        amount = request.form["amount"]
+        perUsername = (username,)
+        # fetch the balance
+        fetch = """SELECT cards.balance, cards.username FROM cards WHERE username = %s;"""
+        cursor.execute(fetch, perUsername)
+        query = cursor.fetchone()
+        balance = query[0]
+        connection.commit()
+        print("Balance=", balance)
+        new_balance = balance + int(amount)
+        # add the balance
+        add_money = """ UPDATE cards
+                SET balance = %s
+                WHERE username = %s"""
+        cursor.execute(add_money, (new_balance, username))
+        connection.commit()
+        return render_template("store/store_dashboard.html")
 
 @app.route('/logout')
 def logout():
