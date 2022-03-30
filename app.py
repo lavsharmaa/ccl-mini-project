@@ -17,8 +17,8 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # twilio messaging
-account_sid = '<account_sid>' 
-auth_token = '<auth_token>'
+account_sid = 'AC36218366233f168a4a6884ef2d3e6297' 
+auth_token = '9d60d40b2cf557f7dfa891206c599181'
 client = Client(account_sid, auth_token)  
 
 device = '/dev/ttyACM0' #this will have to be changed to the serial port you are using
