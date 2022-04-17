@@ -1,6 +1,6 @@
 serial
 python-dotenv
 flask
-psycopg2-binary
-flas_session
+psycopg2
+flask_session
 twilio

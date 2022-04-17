@@ -17,36 +17,33 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # twilio messaging
-account_sid = 'AC36218366233f168a4a6884ef2d3e6297' 
-auth_token = '9d60d40b2cf557f7dfa891206c599181'
+account_sid = '<account_sid>' 
+auth_token = '<auth_token>'
 client = Client(account_sid, auth_token)  
 
 device = '/dev/ttyACM0' #this will have to be changed to the serial port you are using
 
 # azure database
 # Update connection string information
-host = "cclproject.postgres.database.azure.com"
-dbname = "postgres"
-user = "cclproject@cclproject"
-password = "SmartCardSystem123"
-sslmode = "require"
+host = "<localhost_name>"
+dbname = "<db_name>"
+user = "<username>"
+password = "<password>"
+# sslmode is required if you are using azure postgresql database
+# read more on https://docs.microsoft.com/en-us/azure/postgresql/connect-python
+# sslmode = "require"
 
-# Construct connection string
-conn_string = "host={0} user={1} dbname={2} password={3} sslmode={4}".format(host, user, dbname, password, sslmode)
+# connection string
+# if using azure postgresql just add sslmode={4} and sslmode in the conn_string
+conn_string = "host={0} user={1} dbname={2} password={3}".format(host, user, dbname, password)
 
 @app.route('/')
 def index():
-    #establish connection to PostgreSQL
-    # connection = psycopg2.connect(user="root",
-    #     password="root",
-    #     host="localhost",
-    #     port="5432",
-    #     database="cclproject")
-    # cursor = connection.cursor()
+    # establish connection 
     connection = psycopg2.connect(conn_string)
+    cursor = connection.cursor()
     print("Connection established")
 
-    cursor = connection.cursor()
     #create table
     user_details = """CREATE TABLE IF NOT EXISTS users
         (
@@ -134,6 +131,13 @@ def index():
     cursor.execute(transaction_details)
     connection.commit()
 
+    # sample transaction
+    # sample_transaction = """INSERT INTO transactions(cardno, username, emailid,
+    # amount, place, createtimeStamp) VALUES('09 DF 98 B3', 'sample', 'sample@test.in',
+    # 100, 'CCD', '24-03-2022');"""
+    # cursor.execute(sample_transaction)
+    # connection.commit()
+
     # store table
     store_details = """CREATE TABLE IF NOT EXISTS stores
         (
@@ -156,7 +160,7 @@ def index():
     # sample store entry
     # sample_store = """INSERT INTO stores(susername, firstname, lastname, semailid,
     # smobileno, dateofbirth, password) VALUES('store', 'Store', 'User', 'store@test.in',
-    # '8452930878', '24-04-2001', 'stores123');"""
+    # '8452930878', '24-04-2001', 'store123');"""
     # cursor.execute(sample_store)
     # connection.commit()
 
@@ -165,14 +169,6 @@ def index():
     else:
         return redirect(url_for('signin'))
 
-    # sample transaction
-    # sample_transaction = """INSERT INTO transactions(cardno, username, emailid,
-    # amount, place, createtimeStamp) VALUES('09 DF 98 B3', 'sample', 'sample@test.in',
-    # 100, 'CCD', '24-03-2022');"""
-    # cursor.execute(sample_transaction)
-    # connection.commit()
-
-
 @app.route('/signin', methods=['GET', 'POST'])
 def signin():
     if request.method == "POST":
@@ -180,16 +176,10 @@ def signin():
         password = request.form['password']
         print(username, password)
         try:
-            # connection = psycopg2.connect(user="root",
-            #                               password="root",
-            #                               host="localhost",
-            #                               port="5432",
-            #                               database="cclproject")
-            # cursor = connection.cursor()
+            # establish connection 
             connection = psycopg2.connect(conn_string)
-            print("Connection established")
-
             cursor = connection.cursor()
+            print("Connection established")
 
             username = request.form.get("username", False)
             password_entered = request.form.get("password", False)
@@ -216,9 +206,7 @@ def signin():
             print("Error in insert operation", error)
 
         finally:
-            # closing database connection.
             if (connection):
-                #cursor.close()
                 connection.close()
                 print("PostgreSQL connection is closed")
                 render_template("user/login/login.html")
@@ -232,16 +220,10 @@ def store_signin():
         password = request.form['password']
         print(susername, password)
         try:
-            # connection = psycopg2.connect(user="root",
-            #                               password="root",
-            #                               host="localhost",
-            #                               port="5432",
-            #                               database="cclproject")
-            # cursor = connection.cursor()
+            # establish connection 
             connection = psycopg2.connect(conn_string)
-            print("Connection established")
-
             cursor = connection.cursor()
+            print("Connection established")
 
             susername = request.form.get("username", False)
             password_entered = request.form.get("password", False)
@@ -264,9 +246,7 @@ def store_signin():
             print("Error in insert operation", error)
 
         finally:
-            # closing database connection.
             if (connection):
-                # cursor.close()
                 connection.close()
                 print("PostgreSQL connection is closed")
                 render_template("store/login/store_login.html")
@@ -285,22 +265,15 @@ def signup():
         dateofbirth = request.form['dateofbirth']
         password = request.form['password']
         mobileno = request.form['mobileno']
-        
-        # try:
-        # connection = psycopg2.connect(user="root",
-        #                                   password="root",
-        #                                   host="localhost",
-        #                                   port="5432",
-        #                                   database="cclproject")
-        # cursor = connection.cursor()
+
+        # establish connection 
         connection = psycopg2.connect(conn_string)
+        cursor = connection.cursor()
         print("Connection established")
 
-        cursor = connection.cursor()
-
         sql_insert_query = """INSERT INTO users(
-	username, firstname, lastname, emailid, mobileno, dateofbirth, password, OTP)
-	VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
+            username, firstname, lastname, emailid, mobileno, dateofbirth, password, OTP)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);"""
         record_to_insert = (username, firstname, lastname, emailid, mobileno, dateofbirth, password, 'NULL')
         print(record_to_insert)
         cursor.execute(sql_insert_query, record_to_insert)
@@ -318,17 +291,11 @@ def reset():
     if request.method == "POST":
         emailid = request.form['emailid']
         password = request.form['password']
-        # connection = psycopg2.connect(user="root",
-        #                                 password="root",
-        #                                 host="localhost",
-        #                                 port="5432",
-        #                                 database="proctoring")
-        # cursor = connection.cursor()
 
+        # establish connection 
         connection = psycopg2.connect(conn_string)
-        print("Connection established")
-
         cursor = connection.cursor()
+        print("Connection established")
 
         emailid = request.form.get("emailid", False)
         password = request.form.get("password", False)
@@ -344,16 +311,10 @@ def reset():
 
 @app.route('/user_dashboard')
 def user_dashboard():
-    # connection = psycopg2.connect(user="root",
-    #                                       password="root",
-    #                                       host="localhost",
-    #                                       port="5432",
-    #                                       database="cclproject")
-    # cursor = connection.cursor()
+    # establish connection 
     connection = psycopg2.connect(conn_string)
-    print("Connection established")
-
     cursor = connection.cursor()
+    print("Connection established")
 
     transaction_details = """SELECT transactions.date, transactions.amount, transactions.place, transactions.approved FROM transactions where username='sample';"""
     cursor.execute(transaction_details)
@@ -366,16 +327,10 @@ def user_dashboard():
 
 @app.route('/block_card/<username>',methods = ['GET','POST'])
 def block_card(username):
-    # connection = psycopg2.connect(user="root",
-    #                             password="root",
-    #                             host="localhost",
-    #                             port="5432",
-    #                             database="cclproject")
-    # cursor = connection.cursor()
+    # establish connection 
     connection = psycopg2.connect(conn_string)
-    print("Connection established")
-
     cursor = connection.cursor()
+    print("Connection established")
 
     username = username
     sql = """ UPDATE cards
@@ -387,16 +342,10 @@ def block_card(username):
 
 @app.route('/unblock_card/<username>',methods = ['GET','POST'])
 def unblock_card(username):
-    # connection = psycopg2.connect(user="root",
-    #                             password="root",
-    #                             host="localhost",
-    #                             port="5432",
-    #                             database="cclproject")
-    # cursor = connection.cursor()
+    # establish connection 
     connection = psycopg2.connect(conn_string)
-    print("Connection established")
-
     cursor = connection.cursor()
+    print("Connection established")
 
     username = username
     sql = """ UPDATE cards
@@ -408,16 +357,10 @@ def unblock_card(username):
 
 @app.route('/store_dashboard')
 def store_dashboard():
-    # connection = psycopg2.connect(user="root",
-    #                                       password="root",
-    #                                       host="localhost",
-    #                                       port="5432",
-    #                                       database="cclproject")
-    # cursor = connection.cursor()
+    # establish connection 
     connection = psycopg2.connect(conn_string)
-    print("Connection established")
-
     cursor = connection.cursor()
+    print("Connection established")
 
     transaction_details = """SELECT transactions.username, transactions.date, transactions.amount, transactions.approved FROM transactions where username='sample';"""
     cursor.execute(transaction_details)
@@ -442,16 +385,10 @@ def card_blocked():
 
 @app.route('/make_payment', methods = ['GET','POST'])
 def make_payment():
-    # connection = psycopg2.connect(user="root",
-    #                                 password="root",
-    #                                 host="localhost",
-    #                                 port="5432",
-    #                                 database="cclproject")
-    # cursor = connection.cursor()
+    # establish connection 
     connection = psycopg2.connect(conn_string)
-    print("Connection established")
-
     cursor = connection.cursor()
+    print("Connection established")
 
     if request.method == "POST":
         amount = request.form['amount']
@@ -462,7 +399,6 @@ def make_payment():
         ## create a number of any length for now range = 6
         for i in range(6):
             index = math.floor(random.random() * 10)
-
             random_str += str(digits[index])
 
         ## display the otp
@@ -488,16 +424,10 @@ def make_payment():
 
 @app.route('/verify_otp', methods = ['GET','POST'])
 def verify_otp():
-    # connection = psycopg2.connect(user="root",
-    #                                 password="root",
-    #                                 host="localhost",
-    #                                 port="5432",
-    #                                 database="cclproject")
-    # cursor = connection.cursor()
+    # establish connection 
     connection = psycopg2.connect(conn_string)
-    print("Connection established")
-
     cursor = connection.cursor()
+    print("Connection established")
 
     if request.method == "POST":
         user_otp = request.form['otp']
@@ -513,62 +443,62 @@ def verify_otp():
         emailid = query[2]
         if user_otp == db_otp:
             print("Trying...",device)
-        arduino = serial.Serial(device, 9600)
-        while True:
-            data=arduino.readline()
-            pieces=data.splitlines()[0]
-            if pieces.startswith(b"Card UID"):
-                cardno= pieces.split(b":")[1]
-                # converting to string
-                cardnostring = str(cardno)
-                # extracting card no
-                exactcard = cardnostring[3:14]
-                print("Exact=", exactcard)
-                # check if card is active
-                check_status = """SELECT cards.cardno, cards.active, cards.balance FROM cards where cardno= %s"""
-                cardno = (exactcard,)
-                cursor.execute(check_status, cardno)
-                query = cursor.fetchone()
-                status = query[1]
-                balance = query[2]
-                sstatus = str(status)
-                ibalance = int(balance)
-                print("Status=", sstatus)
-                print("Int balance=", ibalance)
-                if(sstatus == 'True'):
-                    print("Card is active")
-                    if(ibalance >= int(amount) ):
-                        # deduct the amount
-                        ibalance = ibalance - int(amount)
-                        print("Final amount=", ibalance)
-                        # update balance
-                        sql = """ UPDATE cards
-                                SET balance = %s
-                                WHERE cardno = %s"""
-                        cursor.execute(sql, (ibalance, cardno))
-                        connection.commit()
-                        # update transaction table
-                        transaction = """INSERT INTO public.transactions(
-                            cardno, username, emailid, amount, place, date, approved)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s);"""
-                        record_to_insert = (cardno, username, emailid, int(amount), 'CCD', '25-03-2022', True)
-                        cursor.execute(transaction, record_to_insert)
-                        connection.commit()
-                        return render_template('payment/payment_successful.html')
-                    elif (ibalance < int(amount)):
-                        return render_template('payment/insufficient_balance.html')
-                else:
-                    return render_template('payment/card_blocked.html')
+            arduino = serial.Serial(device, 9600)
+            while True:
+                data=arduino.readline()
+                pieces=data.splitlines()[0]
+                if pieces.startswith(b"Card UID"):
+                    cardno= pieces.split(b":")[1]
+                    # converting to string
+                    cardnostring = str(cardno)
+                    # extracting card no
+                    exactcard = cardnostring[3:14]
+                    print("Exact=", exactcard)
+                    # check if card is active
+                    check_status = """SELECT cards.cardno, cards.active, cards.balance FROM cards where cardno= %s"""
+                    cardno = (exactcard,)
+                    cursor.execute(check_status, cardno)
+                    query = cursor.fetchone()
+                    status = query[1]
+                    balance = query[2]
+                    sstatus = str(status)
+                    ibalance = int(balance)
+                    print("Status=", sstatus)
+                    print("Int balance=", ibalance)
+                    if(sstatus == 'True'):
+                        print("Card is active")
+                        if(ibalance >= int(amount) ):
+                            # deduct the amount
+                            ibalance = ibalance - int(amount)
+                            print("Final amount=", ibalance)
+                            # update balance
+                            sql = """ UPDATE cards
+                                    SET balance = %s
+                                    WHERE cardno = %s"""
+                            cursor.execute(sql, (ibalance, cardno))
+                            connection.commit()
+                            # update transaction table
+                            transaction = """INSERT INTO public.transactions(
+                                cardno, username, emailid, amount, place, date, approved)
+                                VALUES (%s, %s, %s, %s, %s, %s, %s);"""
+                            record_to_insert = (cardno, username, emailid, int(amount), 'CCD', '25-03-2022', True)
+                            cursor.execute(transaction, record_to_insert)
+                            connection.commit()
+                            return render_template('payment/payment_successful.html')
+                        elif (ibalance < int(amount)):
+                            return render_template('payment/insufficient_balance.html')
+                    else:
+                        return render_template('payment/card_blocked.html')
         else:
             return "Wrong OTP"
     return render_template('payment/verify_otp.html')
 
 @app.route('/insert', methods = ['GET','POST'])
 def insert_card():
+    # establish connection 
     connection = psycopg2.connect(conn_string)
-    print("Connection established")
-
     cursor = connection.cursor()
+    print("Connection established")
 
     if request.method == "POST":
         cardno = request.form['cardno']
@@ -596,10 +526,10 @@ def load_balance():
 
 @app.route('/balance', methods = ['GET','POST'])
 def balance():
+    # establish connection 
     connection = psycopg2.connect(conn_string)
-    print("Connection established")
-
     cursor = connection.cursor()
+    print("Connection established")
 
     if request.method == "POST":
         username = request.form['username']
