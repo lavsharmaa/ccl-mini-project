@@ -22,24 +22,24 @@ With the Smart Card System you can :
 <br>
 Functionalities Screenshot :
 <br>
-🔽 [User Registration]()<br>
-🔽 [User Login]()<br>
-🔽 [User Dashboard]()<br>
-🔽 [Forgot Password]()<br>
-🔽 [Store/Admin Login]()<br>
-🔽 [Store/Admin Dashboard]()<br>
-🔽 [Create Payment]()<br>
-🔽 [OTP Received on Phone]()<br>
-🔽 [Enter OTP]()<br>
-🔽 [Payment Unsuccessful 1]()<br>
-🔽 [Payment Unsuccessful 1]()<br>
-🔽 [Payment Successful]()<br>
-🔽 [Add Card]()<br>
-🔽 [Load Balance]()<br>
-🔽 [User DB]()<br>
-🔽 [Store/Admin DB]()<br>
-🔽 [Transactions DB]()<br>
-🔽 [Cards DB]()<br>
+🔽 [User Registration](./output_images/user_registration.png)<br>
+🔽 [User Login](./output_images/user_login.png)<br>
+🔽 [User Dashboard](./output_images/user_dashboard.png)<br>
+🔽 [Forgot Password](/output_images/reset_password.png)<br>
+🔽 [Store/Admin Login](./output_images/admin_login.png)<br>
+🔽 [Store/Admin Dashboard](./output_images/store_dashboard.png)<br>
+🔽 [Create Payment](./output_images/payment.png)<br>
+🔽 [OTP Received on Phone](./output_images/mobile_otp.jpg)<br>
+🔽 [Enter OTP](./output_images/enter_otp.png)<br>
+🔽 [Payment Unsuccessful 1](./output_images/payment_un_1.png)<br>
+🔽 [Payment Unsuccessful 2](./output_images/payment_un_2.png)<br>
+🔽 [Payment Successful](./output_images/payment_successful.png)<br>
+🔽 [Add Card](./output_images/add_card.png)<br>
+🔽 [Load Balance](./output_images/load_balance.png)<br>
+🔽 [User DB](./output_images/user_db.png)<br>
+🔽 [Store/Admin DB](./output_images/admin_db.png)<br>
+🔽 [Transactions DB](./output_images/transactions_db.png)<br>
+🔽 [Cards DB](./output_images/cards_db.png)<br>
 
 ## Built With
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
