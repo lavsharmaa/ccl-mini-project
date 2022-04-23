@@ -1,0 +1,6 @@
+serial
+python-dotenv
+flask
+psycopg2-binary
+flask_session
+twilio

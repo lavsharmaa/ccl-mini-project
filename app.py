@@ -17,15 +17,17 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # twilio messaging
-account_sid = '<account_sid>' 
+account_sid = '<account+sid>' 
 auth_token = '<auth_token>'
 client = Client(account_sid, auth_token)  
 
-device = '/dev/ttyACM0' #this will have to be changed to the serial port you are using
+# device = '9600'         <--- for windows
+# device = '/dev/ttyACM0' <--- for linus
+device = '9600' #this will have to be changed to the serial port you are using
 
 # azure database
 # Update connection string information
-host = "<localhost_name>"
+host = "<host_name>"
 dbname = "<db_name>"
 user = "<username>"
 password = "<password>"
@@ -134,7 +136,7 @@ def index():
     # sample transaction
     # sample_transaction = """INSERT INTO transactions(cardno, username, emailid,
     # amount, place, createtimeStamp) VALUES('09 DF 98 B3', 'sample', 'sample@test.in',
-    # 100, 'CCD', '24-03-2022');"""
+    # 100, 'CCD', "24-03-2022");"""
     # cursor.execute(sample_transaction)
     # connection.commit()
 
@@ -165,6 +167,8 @@ def index():
     # connection.commit()
 
     if session.get('logged_in') == True:
+        session["name"] = username
+        print("username=", username)
         return redirect(url_for('user_dashboard'))
     else:
         return redirect(url_for('signin'))
@@ -414,7 +418,7 @@ def make_payment():
         mobileno = "+91"+mobileno
         print("Mobile no=", mobileno)
         message = client.messages.create(  
-                              messaging_service_sid='MGa9dd1f5cab1da2f0ec8b04f16446771f', 
+                              messaging_service_sid='<messaging_api>', 
                               body=f'Your OTP is {random_str}',      
                               to=f'{mobileno}' 
                           )
